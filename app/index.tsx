@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { LucideIcon, Mail, KeyRound } from "lucide-react-native";
 import "../global.css";
 
@@ -25,10 +25,7 @@ const IconTextInput: React.FC<IconTextInputProps> = ({
   return (
     <View className="flex-row items-center border-b border-gray-300 mb-5">
       <Icon color="gray" size={24} />
-      <TextInput
-        className="flex-1 ml-2 text-lg"
-        {...textInputProps}
-      />
+      <TextInput className="flex-1 ml-2 text-lg" {...textInputProps} />
     </View>
   );
 };
@@ -76,7 +73,10 @@ export default function Login() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <View className="p-5 items-end">
-        <Image source={require("../assets/images/Logo.png")} resizeMode="contain" />
+        <Image
+          source={require("../assets/images/Logo.png")}
+          resizeMode="contain"
+        />
       </View>
 
       <View className="flex-1 justify-center bg-white px-6 py-10">
@@ -108,8 +108,12 @@ export default function Login() {
 
         <View className="flex-row justify-center">
           <Text className="text-gray-500">No Account? </Text>
-          <TouchableOpacity onPress={() => router.push("/signUp")}>
-            <Text className="text-[#5BBAC9] font-semibold underline">Create One</Text>
+          <TouchableOpacity>
+            <Link href={"/signup"}>
+              <Text className="text-[#5BBAC9] font-semibold underline">
+                Create One
+              </Text>
+            </Link>
           </TouchableOpacity>
         </View>
       </View>
