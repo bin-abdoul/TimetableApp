@@ -5,14 +5,16 @@ import { Stack, useRouter } from "expo-router";
 const tabs = [
   { key: "readTimetable", label: "Timetable" },
   { key: "addCourse", label: "Add Course" },
-  { key: "signUp", label: "Sign Up" },
-];
+  { key: "signup", label: "Sign Up" }, // lowercase "signup"
+] as const;
+
+type Page = (typeof tabs)[number]["key"]; // "readTimetable" | "addCourse" | "signup"
 
 export default function MainScreen() {
   const router = useRouter();
-  const [selected, setSelected] = useState("readTimetable");
+  const [selected, setSelected] = useState<Page>("readTimetable");
 
-  const navigate = (page: string) => {
+  const navigate = (page: Page) => {
     setSelected(page);
     router.push(`/${page}`);
   };

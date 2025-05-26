@@ -10,7 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { LucideIcon, Mail, KeyRound } from "lucide-react-native";
 import "../global.css";
 
@@ -108,12 +108,10 @@ export default function Login() {
 
         <View className="flex-row justify-center">
           <Text className="text-gray-500">No Account? </Text>
-          <TouchableOpacity>
-            <Link href={"/signup"}>
-              <Text className="text-[#5BBAC9] font-semibold underline">
-                Create One
-              </Text>
-            </Link>
+          <TouchableOpacity onPress={() => router.push("/signup")}>
+            <Text className="text-[#5BBAC9] font-semibold underline">
+              Create One
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
