@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TextInput,
+  TextInputProps,
   TouchableOpacity,
   Image,
   Alert,
@@ -10,9 +11,27 @@ import {
   Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { Mail, KeyRound } from "lucide-react-native";
+import { LucideIcon, Mail, KeyRound } from "lucide-react-native";
 import "../global.css";
 
+interface IconTextInputProps extends TextInputProps {
+  Icon: LucideIcon;
+}
+
+const IconTextInput: React.FC<IconTextInputProps> = ({
+  Icon,
+  ...textInputProps
+}) => {
+  return (
+    <View className="flex-row items-center border-b border-gray-300 mb-5">
+      <Icon color="gray" size={24} />
+      <TextInput
+        className="flex-1 ml-2 text-lg"
+        {...textInputProps}
+      />
+    </View>
+  );
+};
 
 export default function Login() {
   const router = useRouter();
@@ -33,53 +52,52 @@ export default function Login() {
       return;
     }
 
-    try {
-      const res = await fetch("https://your-backend-url.com/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+    // try {
+    //   const res = await fetch("https://your-backend-url.com/api/login", {
+    //     method: "POST",
+    //     headers: { "Content-Type": "application/json" },
+    //     body: JSON.stringify(formData),
+    //   });
 
-      if (!res.ok) throw new Error("Invalid user credentials");
+    //   if (!res.ok) throw new Error("Invalid user credentials");
 
-      const data = await res.json();
-      // Save token securely if needed
-      Alert.alert("Success", "Login successful");
-      router.replace("/main");;
-    } catch (err: any) {
-      Alert.alert("Login Failed", err.message || "Something went wrong");
-    }
+    //   const data = await res.json();
+    //   Alert.alert("Success", "Login successful");
+    //   router.replace("/main");
+    // } catch (err: unknown) {
+    //   const message = err instanceof Error ? err.message : "Something went wrong";
+    //   Alert.alert("Login Failed", message);
+    // }
   };
+
   return (
-    <KeyboardAvoidingView className="flex-1 bg-white">
+    <KeyboardAvoidingView
+      className="flex-1 bg-white"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <View className="p-5 items-end">
         <Image source={require("../assets/images/Logo.png")} resizeMode="contain" />
       </View>
-      <View className="flex-1 flex-col justify-center bg-white px-6 py-10">
+
+      <View className="flex-1 justify-center bg-white px-6 py-10">
         <Text className="text-3xl font-bold my-10">Sign In</Text>
 
-        <View className="flex-row items-center border-b border-gray-300 mb-5">
-          <Mail color="gray" size={24} />
-          <TextInput
-            className="flex-1 ml-2 text-lg"
-            placeholder="Email Address"
-            value={formData.email}
-            onChangeText={(text) => setFormData({ ...formData, email: text })}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
+        <IconTextInput
+          Icon={Mail}
+          placeholder="Email Address"
+          value={formData.email}
+          onChangeText={(text) => setFormData({ ...formData, email: text })}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
 
-        <View className="flex-row items-center border-b border-gray-300 mb-8">
-          <KeyRound color="gray" size={24} />
-          <TextInput
-            className="flex-1 ml-2 text-lg"
-            placeholder="Password"
-            secureTextEntry
-            value={formData.password}
-            onChangeText={(text) => setFormData({ ...formData, password: text })}
-          />
-        </View>
+        <IconTextInput
+          Icon={KeyRound}
+          placeholder="Password"
+          value={formData.password}
+          onChangeText={(text) => setFormData({ ...formData, password: text })}
+          secureTextEntry
+        />
 
         <TouchableOpacity
           onPress={handleSubmit}

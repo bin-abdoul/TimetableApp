@@ -1,91 +1,123 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { Star } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  LayoutAnimation,
+  UIManager,
+  Platform,
+} from "react-native";
+import Collapsible from "react-native-collapsible";
+import { useRouter } from "expo-router";
+import { Pencil, Trash2 } from "lucide-react-native";
 
-const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-const timetableData = [
-  {
-    day: "Wednesday",
-    timeSlot: "10:00AM -- 12:00PM",
-    courseCode: "MTH102",
-    courseTitle: "Linear Algebra",
-    lecturer: "Prof. Jane",
-    venue: "Room B",
-    creditUnit: "1",
-    id: "id",
-  },
-  // Add more course objects as needed
-];
+if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+interface Course {
+  _id: string;
+  title: string;
+  lecturer: string;
+  day: string;
+  time: string;
+  location: string;
+}
 
 export default function ReadTimetable() {
-  const [expandedDays, setExpandedDays] = useState<string[]>([]);
+  const [timetable, setTimetable] = useState<Course[]>([]);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const router = useRouter();
 
-  // Toggle expand/collapse for a day
-  const toggleDay = (day: string) => {
-    setExpandedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
+  useEffect(() => {
+    fetchTimetable();
+  }, []);
+
+  const fetchTimetable = async () => {
+    // try {
+    //   const res = await fetch("https://your-backend-url.com/api/timetable");
+    //   const data = await res.json();
+    //   setTimetable(data);
+    // } catch (err) {
+    //   Alert.alert("Error", "Failed to fetch timetable");
+    // }
   };
 
-  // Get all courses for a specific day
-  const getCoursesForDay = (day: string) =>
-    timetableData.filter((course) => course.day === day);
+  const toggleAccordion = (index: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setActiveIndex(index === activeIndex ? null : index);
+  };
+
+  const handleDelete = async (id: string) => {
+    // try {
+    //   await fetch(`https://your-backend-url.com/api/timetable/${id}`, {
+    //     method: "DELETE",
+    //   });
+    //   setTimetable((prev) => prev.filter((course) => course._id !== id));
+    //   Alert.alert("Success", "Course deleted");
+    // } catch (err) {
+    //   Alert.alert("Error", "Failed to delete course");
+    // }
+  };
 
   return (
-    <ScrollView className="flex-1 bg-white p-4">
-      {days.map((day) => {
-        const isExpanded = expandedDays.includes(day);
-        const courses = getCoursesForDay(day);
+    <ScrollView className="flex-1 bg-white px-4 py-6">
+      <Text className="text-2xl font-bold text-center text-gray-800 mb-4">
+        My Timetable
+      </Text>
 
-        return (
-          <View key={day} className="mb-4 border rounded-lg overflow-hidden">
-            <TouchableOpacity
-              onPress={() => toggleDay(day)}
-              className="bg-gray-200 px-4 py-3"
-            >
-              <Text className="text-xl font-bold">{day}</Text>
-            </TouchableOpacity>
+      {timetable.map((course, index) => (
+        <View key={course._id} className="mb-4 border border-gray-300 rounded-xl">
+          <TouchableOpacity
+            onPress={() => toggleAccordion(index)}
+            className="bg-[#5BBAC9] p-4 rounded-t-xl"
+          >
+            <Text className="text-white font-semibold text-lg">{course.title}</Text>
+          </TouchableOpacity>
 
-            {isExpanded && (
-              <View className="bg-white px-4 py-3 border-t">
-                {courses.length === 0 ? (
-                  <Text className="text-gray-500 italic">No classes</Text>
-                ) : (
-                  courses.map((course) => (
-                    <CourseData key={course.id} {...course} onPress={() => {}} />
-                  ))
-                )}
+          <Collapsible collapsed={activeIndex !== index}>
+            <View className="bg-gray-50 p-4 rounded-b-xl">
+              <Text className="text-base text-gray-700 mb-1">
+                <Text className="font-semibold">Lecturer:</Text> {course.lecturer}
+              </Text>
+              <Text className="text-base text-gray-700 mb-1">
+                <Text className="font-semibold">Day:</Text> {course.day}
+              </Text>
+              <Text className="text-base text-gray-700 mb-1">
+                <Text className="font-semibold">Time:</Text> {course.time}
+              </Text>
+              <Text className="text-base text-gray-700 mb-3">
+                <Text className="font-semibold">Location:</Text> {course.location}
+              </Text>
+
+              <View className="flex-row justify-between">
+                <TouchableOpacity
+                  // onPress={() => router.push(`/updateCourse/${course._id}`)}
+                  className="flex-row items-center bg-yellow-500 px-4 py-2 rounded-xl"
+                >
+                  <Pencil size={18} color="white" />
+                  <Text className="text-white font-medium ml-2">Update</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() =>
+                    Alert.alert("Confirm", "Delete this course?", [
+                      { text: "Cancel" },
+                      { text: "Delete", onPress: () => handleDelete(course._id), style: "destructive" },
+                    ])
+                  }
+                  className="flex-row items-center bg-red-500 px-4 py-2 rounded-xl"
+                >
+                  <Trash2 size={18} color="white" />
+                  <Text className="text-white font-medium ml-2">Delete</Text>
+                </TouchableOpacity>
               </View>
-            )}
-          </View>
-        );
-      })}
+            </View>
+          </Collapsible>
+        </View>
+      ))}
     </ScrollView>
   );
 }
-
-const CourseData = ({
-  courseCode,
-  courseTitle,
-  lecturer,
-  venue,
-  creditUnit,
-  onPress,
-}: {
-  courseCode: string;
-  courseTitle: string;
-  lecturer: string;
-  venue: string;
-  creditUnit: string;
-  onPress: () => void;
-}) => (
-  <View className="border p-3 mb-3 rounded shadow-sm">
-    <Text className="text-lg text-blue-600 font-bold">
-      {courseCode} ({creditUnit} unit)
-      <Star color="orange" fill="red" size={16} />
-    </Text>
-    <Text className="text-sm text-red-900">{courseTitle}</Text>
-    <Text className="text-green-800">{lecturer}</Text>
-    <Text className="text-sky-500">{venue}</Text>
-  </View>
-);

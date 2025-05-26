@@ -6,10 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
-  Platform,
 } from "react-native";
-// import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useRouter } from "expo-router";
 import { CalendarClock, MapPin, User, Book } from "lucide-react-native";
 
@@ -25,8 +24,7 @@ export default function AddCourseScreen() {
     endTime: null as Date | null,
   });
 
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [pickerMode, setPickerMode] = useState<"start" | "end" | null>(null);
 
   const updateField = (key: keyof typeof courseData, value: any) => {
     setCourseData((prev) => ({ ...prev, [key]: value }));
@@ -44,11 +42,11 @@ export default function AddCourseScreen() {
 
     console.log("Course added:", courseData);
     Alert.alert("Success", "Course added!");
-    // router.push("/main"); // Change to wherever you want to go
+    // router.push("/main"); // Optional redirect
   };
 
   return (
-    <ScrollView className="bg-white p-6">
+    <ScrollView className="bg-white px-6 pt-10">
       <Text className="text-3xl font-bold mb-6">Add Course</Text>
 
       <InputField
@@ -86,60 +84,36 @@ export default function AddCourseScreen() {
         </Picker>
       </View>
 
-      {/* Start Time Picker */}
-      <TouchableOpacity
-        onPress={() => setShowStartPicker(true)}
-        className="flex-row items-center border-b border-gray-300 py-3 mt-4"
-      >
-        <CalendarClock color="gray" size={24} />
-        <Text className="ml-3 text-lg text-gray-600">
-          {courseData.startTime
-            ? courseData.startTime.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "Select Start Time"}
-        </Text>
-      </TouchableOpacity>
+      {/* Time Pickers */}
+      <TimeField
+        label="Start Time"
+        value={courseData.startTime}
+        onPress={() => setPickerMode("start")}
+      />
+      <TimeField
+        label="End Time"
+        value={courseData.endTime}
+        onPress={() => setPickerMode("end")}
+      />
 
-      {/* {showStartPicker && (
-        <DateTimePicker
-          mode="time"
-          value={courseData.startTime || new Date()}
-          onChange={(event, selectedDate) => {
-            setShowStartPicker(false);
-            if (selectedDate) updateField("startTime", selectedDate);
-          }}
-        />
-      )} */}
+      {/* Time Picker Modal */}
+      <DateTimePickerModal
+        isVisible={pickerMode !== null}
+        mode="time"
+        date={
+          pickerMode === "start"
+            ? courseData.startTime || new Date()
+            : courseData.endTime || new Date()
+        }
+        onConfirm={(date:any) => {
+          if (pickerMode === "start") updateField("startTime", date);
+          else updateField("endTime", date);
+          setPickerMode(null);
+        }}
+        onCancel={() => setPickerMode(null)}
+      />
 
-      {/* End Time Picker */}
-      <TouchableOpacity
-        onPress={() => setShowEndPicker(true)}
-        className="flex-row items-center border-b border-gray-300 py-3 mt-4"
-      >
-        <CalendarClock color="gray" size={24} />
-        <Text className="ml-3 text-lg text-gray-600">
-          {courseData.endTime
-            ? courseData.endTime.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "Select End Time"}
-        </Text>
-      </TouchableOpacity>
-
-      {/* {showEndPicker && (
-        <DateTimePicker
-          mode="time"
-          value={courseData.endTime || new Date()}
-          onChange={(event, selectedDate) => {
-            setShowEndPicker(false);
-            if (selectedDate) updateField("endTime", selectedDate);
-          }}
-        />
-      )} */}
-
+      {/* Submit Button */}
       <TouchableOpacity
         disabled={!isFormValid}
         onPress={handleSubmit}
@@ -147,7 +121,9 @@ export default function AddCourseScreen() {
           isFormValid ? "bg-[#5BBAC9]" : "bg-gray-400"
         }`}
       >
-        <Text className="text-white text-center font-bold text-xl">Add Course</Text>
+        <Text className="text-white text-center font-bold text-xl">
+          Add Course
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -174,5 +150,32 @@ function InputField({
         onChangeText={onChange}
       />
     </View>
+  );
+}
+
+function TimeField({
+  label,
+  value,
+  onPress,
+}: {
+  label: string;
+  value: Date | null;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className="flex-row items-center border-b border-gray-300 py-3 mt-4"
+    >
+      <CalendarClock color="gray" size={24} />
+      <Text className="ml-3 text-lg text-gray-600">
+        {value
+          ? value.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : `Select ${label}`}
+      </Text>
+    </TouchableOpacity>
   );
 }

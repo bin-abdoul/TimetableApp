@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Stack, useRouter } from "expo-router";
 
-export default function main() {
+const tabs = [
+  { key: "readTimetable", label: "Timetable" },
+  { key: "addCourse", label: "Add Course" },
+  { key: "signUp", label: "Sign Up" },
+];
+
+export default function MainScreen() {
   const router = useRouter();
   const [selected, setSelected] = useState("readTimetable");
 
@@ -12,48 +18,28 @@ export default function main() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* Header */}
+    <View className="flex-1 bg-white">
       <Stack.Screen options={{ title: "Main Dashboard" }} />
 
-      {/* Page toggler */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          paddingVertical: 10,
-          backgroundColor: "#5BBAC9",
-        }}
-      >
-        {["readTimetable", "addCourse", "signUp"].map((page) => (
+      <View className="flex-row justify-around py-3 bg-[#5BBAC9]">
+        {tabs.map((tab) => (
           <TouchableOpacity
-            key={page}
-            onPress={() => navigate(page)}
-            style={{
-              padding: 10,
-              borderBottomWidth: selected === page ? 2 : 0,
-              borderBottomColor: "white",
-            }}
+            key={tab.key}
+            onPress={() => navigate(tab.key)}
+            className={`pb-2 ${
+              selected === tab.key ? "border-b-2 border-white" : ""
+            }`}
           >
             <Text
-              style={{
-                color: "white",
-                fontWeight: selected === page ? "bold" : "normal",
-                fontSize: 16,
-              }}
+              className={`text-white text-base ${
+                selected === tab.key ? "font-bold" : "font-normal"
+              }`}
             >
-              {page === "readTimetable"
-                ? "Timetable"
-                : page === "addCourse"
-                ? "Add Course"
-                : "Sign Up"}
+              {tab.label}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
-
-      {/* The routed page will appear below */}
-      {/* You can use children or Outlet for nested routing in Expo Router, but for simplicity, each page loads separately */}
     </View>
   );
 }
